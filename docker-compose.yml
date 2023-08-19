@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  django:
+    build: .
+    container_name: django
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/user/src/app/
+    ports:
+      - '8000:8000'
+    environment:
+      - DEBUG=1
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+    depends_on:
+      - pgdb
+      - redis
+    networks:
+      - mynetwork
+
+  celery:
+    build: .
+    # command: celery worker --app=core --loglevel=info
+    command: celery -A core worker -l INFO
+    volumes:
+      - .:/user/src/app
+    depends_on:
+      - django
+      - redis
+    networks:
+      - mynetwork
+
+  pgdb:
+    image: postgres
+    container_name: pgdb
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data/
+    networks:
+      - mynetwork
+
+  redis:
+    image: "redis:6.2-alpine"
+    restart: always
+    ports: 
+      - 6379:6379
+    # command: docker run redis-server
+    networks:
+      - mynetwork
+
+volumes:
+  pgdata:
+
+networks:
+  mynetwork:

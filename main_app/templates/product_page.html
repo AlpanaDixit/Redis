@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Product Page</title>
+</head>
+<body>
+    <h1>Product Page</h1>
+    <p>Name: {{ product.name }}</p>
+    <p>Price: {{ product.price }}</p>
+    <p>Review: {{ product.review }}</p>
+    <p>Ratings: {{ product.ratings }}</p>
+    <p><a href="{% url 'update_product_price' product_id=product.id new_price=99 %}">Update Price</a></p>
+</body>
+</html>
